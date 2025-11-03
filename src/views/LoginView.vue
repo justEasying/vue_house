@@ -56,7 +56,7 @@ const handleRegister = () => {
               <el-input v-model="loginForm.account" placeholder="请输入手机号或邮箱" />
             </el-form-item>
             <el-form-item label="密码">
-              <el-input v-model="loginForm.password" type="password" show-password />
+              <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password />
             </el-form-item>
             <div class="form-extra">
               <el-checkbox v-model="loginForm.remember">记住登录状态</el-checkbox>

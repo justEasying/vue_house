@@ -220,6 +220,16 @@ function formatDate(date) {
   gap: 24px;
 }
 
+.vip-grid {
+  align-items: stretch;
+}
+
+.vip-grid .el-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .vip-grid img,
 .campaign-card__cover {
   width: 100%;
@@ -230,17 +240,42 @@ function formatDate(date) {
 .vip-card {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  height: 100%;
+}
+
+.vip-card :deep(.el-card__body) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 0 !important;
+  height: 100%;
+  min-height: 0;
 }
 
 .vip-card__cover {
+  width: 100%;
   height: 180px;
+  flex-shrink: 0;
+  object-fit: cover;
 }
 
 .vip-card__body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex: 1 1 auto;
+  padding: 16px;
+  min-height: 0;
+}
+
+.vip-card__body ul {
+  flex-shrink: 0;
+}
+
+.vip-card__body > .el-button {
+  margin-top: auto;
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .vip-card__body h4 {

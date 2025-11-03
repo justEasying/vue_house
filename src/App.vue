@@ -325,13 +325,20 @@ const openDrawer = () => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 14px;
-  border-radius: 999px;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--border-radius-full);
   background: linear-gradient(135deg, #1e2a68 0%, #12193a 100%);
-  color: #fff;
-  font-weight: 700;
-  font-size: 16px;
+  color: var(--color-white);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
   letter-spacing: 1px;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.logo-mark:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .app-menu {
@@ -370,19 +377,21 @@ const openDrawer = () => {
 
 .app-menu :deep(.el-menu-item) {
   height: 48px;
-  margin: 0 4px;
-  border-radius: 8px;
+  margin: 0 var(--spacing-xs);
+  border-radius: var(--border-radius-sm);
   color: var(--gray-2);
-  font-size: 15px;
-  transition: var(--transition-base);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  transition: var(--transition-fast);
   flex-shrink: 0;
   white-space: nowrap;
 }
 
 .app-menu :deep(.el-menu-item.is-active),
 .app-menu :deep(.el-menu-item:hover) {
-  background: rgba(47, 84, 235, 0.1);
+  background: var(--brand-primary-soft);
   color: var(--brand-primary);
+  transform: translateY(-1px);
 }
 
 .app-menu :deep(.el-menu-item .el-icon) {
@@ -392,14 +401,20 @@ const openDrawer = () => {
 
 .app-header {
   height: 72px;
-  background: #fff;
-  border-bottom: 1px solid #eef0f8;
+  background: var(--color-white);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
-  gap: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 0 var(--spacing-2xl);
+  gap: var(--spacing-2xl);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.95);
 }
 
 .header-left {
@@ -433,8 +448,9 @@ const openDrawer = () => {
 }
 
 .city-label {
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   color: var(--gray-3);
+  font-weight: var(--font-weight-medium);
 }
 
 .city-select {
@@ -464,14 +480,15 @@ const openDrawer = () => {
 }
 
 .notice-title {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--gray-2);
-  margin-bottom: 6px;
-  line-height: 1.5;
+  margin-bottom: var(--spacing-xs);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-medium);
 }
 
 .notice-time {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--gray-4);
 }
 
@@ -509,29 +526,33 @@ const openDrawer = () => {
 }
 
 .user-name {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--gray-1);
 }
 
 .user-level {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--gray-4);
 }
 
 .app-main {
   background: var(--gray-bg);
-  padding: 24px;
+  padding: var(--spacing-2xl);
+  flex: 1;
+  min-height: 0;
 }
 
 .ghost-btn {
   border: none;
-  background: rgba(47, 84, 235, 0.12);
+  background: var(--brand-primary-soft);
   color: var(--brand-primary);
+  transition: var(--transition-fast);
 }
 
 .ghost-btn:hover {
   background: rgba(47, 84, 235, 0.2);
+  transform: scale(1.05);
 }
 
 .app-drawer {
@@ -562,15 +583,16 @@ const openDrawer = () => {
 
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.25s ease;
+  transition: var(--transition-base);
 }
 
 .fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translateY(var(--spacing-md));
 }
 
+/* 统一响应式断点优化 */
 @media (max-width: 1399px) {
   .header-search {
     min-width: 280px;
@@ -578,13 +600,13 @@ const openDrawer = () => {
   }
   
   .header-center {
-    gap: 12px;
+    gap: var(--spacing-md);
   }
 }
 
 @media (max-width: 1199px) {
   .app-main {
-    padding: 20px;
+    padding: var(--spacing-xl);
   }
 
   .header-search {
@@ -593,26 +615,31 @@ const openDrawer = () => {
   }
   
   .header-left {
-    gap: 16px;
+    gap: var(--spacing-lg);
   }
   
   .app-menu :deep(.el-menu-item) {
-    margin: 0 2px;
-    padding: 0 12px;
+    margin: 0 var(--spacing-xs);
+    padding: 0 var(--spacing-md);
+    font-size: var(--font-size-sm);
   }
 }
 
 @media (max-width: 1023px) {
   .app-main {
-    padding: 16px;
+    padding: var(--spacing-lg);
   }
 
   .header-left {
-    gap: 12px;
+    gap: var(--spacing-md);
   }
   
   .header-center {
-    gap: 10px;
+    gap: var(--spacing-sm);
+  }
+  
+  .app-header {
+    padding: 0 var(--spacing-lg);
   }
   
   /* 城市选择器始终显示 */
@@ -623,8 +650,9 @@ const openDrawer = () => {
 
 @media (max-width: 767px) {
   .app-header {
-    padding: 0 16px;
-    gap: 12px;
+    padding: 0 var(--spacing-lg);
+    gap: var(--spacing-md);
+    height: 64px;
   }
   
   .header-search {
@@ -633,7 +661,11 @@ const openDrawer = () => {
   }
 
   .header-right {
-    gap: 8px;
+    gap: var(--spacing-sm);
+  }
+
+  .header-left {
+    gap: var(--spacing-sm);
   }
 
   /* 用户信息始终显示 */
@@ -642,8 +674,13 @@ const openDrawer = () => {
   } */
   
   .logo-mark {
-    padding: 6px 12px;
-    font-size: 14px;
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+
+  .app-menu :deep(.el-menu-item) {
+    padding: 0 var(--spacing-sm);
+    font-size: var(--font-size-xs);
   }
 }
 </style>

@@ -1,26 +1,133 @@
 :root {
+  /* 品牌色 */
   --brand-primary: #2f54eb;
-  --brand-primary-soft: #5c7cfa;
+  --brand-primary-light: #5c7cfa;
+  --brand-primary-lighter: #85a5ff;
+  --brand-primary-dark: #1e3a8a;
+  --brand-primary-soft: rgba(47, 84, 235, 0.1);
+
+  /* 功能色 */
+  --brand-success: #52c41a;
+  --brand-success-soft: rgba(82, 196, 26, 0.1);
   --brand-warning: #faad14;
+  --brand-warning-soft: rgba(250, 173, 20, 0.1);
+  --brand-danger: #ff4d4f;
+  --brand-danger-soft: rgba(255, 77, 79, 0.1);
+  --brand-info: #1890ff;
+  --brand-info-soft: rgba(24, 144, 255, 0.1);
+
+  /* 灰度色阶 */
   --gray-1: #0f172a;
   --gray-2: #334155;
   --gray-3: #64748b;
   --gray-4: #94a3b8;
-  --gray-5: #cbd5f5;
+  --gray-5: #cbd5e1;
+  --gray-6: #e2e8f0;
+  --gray-7: #f1f5f9;
   --gray-bg: #f5f7fb;
-  --border-radius-lg: 16px;
-  --border-radius-md: 12px;
+  --gray-bg-light: #fafbfc;
+
+  /* 基础色 */
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* 边框和分割线 */
+  --border-color: #eef0f8;
+  --border-color-light: #f1f5f9;
+  --divider-color: var(--border-color);
+
+  /* 圆角 */
+  --border-radius-xs: 4px;
   --border-radius-sm: 8px;
-  --transition-base: all 0.25s ease;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 20px;
+  --border-radius-full: 999px;
+
+  /* 间距系统 */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+  --spacing-3xl: 32px;
+  --spacing-4xl: 40px;
+  --spacing-5xl: 48px;
+
+  /* 阴影系统 */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 8px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 8px 16px rgba(15, 23, 42, 0.1);
+  --shadow-xl: 0 12px 24px rgba(15, 23, 42, 0.12);
+  --shadow-2xl: 0 16px 32px rgba(15, 23, 42, 0.14);
+  --shadow-inner: inset 0 2px 4px rgba(15, 23, 42, 0.06);
+
+  /* 过渡动画 */
+  --transition-base: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-ease: all 0.3s ease;
+
+  /* 响应式断点 */
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 768px;
+  --breakpoint-md: 1024px;
+  --breakpoint-lg: 1280px;
+  --breakpoint-xl: 1400px;
+
+  /* Z-index层级 */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+
+  /* 字体大小 */
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 15px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 20px;
+  --font-size-3xl: 22px;
+  --font-size-4xl: 24px;
+  --font-size-5xl: 28px;
+
+  /* 字体粗细 */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* 行高 */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-html,
+html {
+  width: 100%;
+  height: 100%;
+  font-size: 14px;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   width: 100%;
   min-height: 100%;
@@ -34,23 +141,190 @@ body {
     'Segoe UI',
     Roboto,
     'Helvetica Neue',
+    Arial,
     sans-serif;
-  background-color: var(--gray-bg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
   color: var(--gray-1);
-  line-height: 1.6;
+  background-color: var(--gray-bg);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
+/* 链接样式 */
 a {
-  color: inherit;
+  color: var(--brand-primary);
   text-decoration: none;
+  transition: var(--transition-fast);
 }
 
+a:hover {
+  color: var(--brand-primary-light);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-xs);
+}
+
+/* 列表重置 */
 ul,
 ol {
   list-style: none;
   padding: 0;
   margin: 0;
+}
+
+/* 标题样式 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--gray-1);
+}
+
+h1 {
+  font-size: var(--font-size-5xl);
+}
+
+h2 {
+  font-size: var(--font-size-4xl);
+}
+
+h3 {
+  font-size: var(--font-size-3xl);
+}
+
+h4 {
+  font-size: var(--font-size-2xl);
+}
+
+h5 {
+  font-size: var(--font-size-xl);
+}
+
+h6 {
+  font-size: var(--font-size-lg);
+}
+
+/* 段落样式 */
+p {
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+/* 图片样式 */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-style: none;
+}
+
+/* 按钮和输入框重置 */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  margin: 0;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 输入框样式 */
+input,
+textarea {
+  outline: none;
+}
+
+input:focus,
+textarea:focus {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 0;
+}
+
+input:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-7);
+  border-radius: var(--border-radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-4);
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-3);
+}
+
+/* 选择文本样式 */
+::selection {
+  background-color: var(--brand-primary-soft);
+  color: var(--brand-primary-dark);
+}
+
+/* 表格样式 */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* 代码样式 */
+code,
+kbd,
+samp {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9em;
+}
+
+/* 隐藏但保留可访问性 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }

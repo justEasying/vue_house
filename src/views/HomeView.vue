@@ -175,12 +175,13 @@ const shortcutsChunks = computed(() => {
           <el-tag type="warning" effect="plain">支持排序 · 收藏 · 约看</el-tag>
         </div>
       </div>
-      <el-table
-        :data="sortedNearby"
-        stripe
-        @sort-change="handleSortChange"
-        style="width: 100%"
-      >
+      <div class="table-wrapper">
+        <el-table
+          :data="sortedNearby"
+          stripe
+          @sort-change="handleSortChange"
+          style="width: 100%"
+        >
         <el-table-column label="图片" width="120">
           <template #default="scope">
             <el-image
@@ -191,7 +192,7 @@ const shortcutsChunks = computed(() => {
             />
           </template>
         </el-table-column>
-        <el-table-column prop="title" label="标题" min-width="220">
+        <el-table-column prop="title" label="标题" min-width="280" show-overflow-tooltip>
           <template #default="scope">
             <div class="table-title">
               <el-button type="primary" link @click="goToProperty(scope.row.id)">
@@ -204,26 +205,26 @@ const shortcutsChunks = computed(() => {
         <el-table-column
           prop="price"
           label="价格"
-          width="120"
+          width="130"
           sortable="custom"
         >
           <template #default="scope">
             <span class="table-price">{{ scope.row.price }} 元/月</span>
           </template>
         </el-table-column>
-        <el-table-column prop="layout" label="户型" width="100" />
+        <el-table-column prop="layout" label="户型" width="110" />
         <el-table-column
           prop="size"
           label="面积㎡"
-          width="100"
+          width="110"
           sortable="custom"
         />
-        <el-table-column prop="release" label="发布时间" width="140" sortable="custom">
+        <el-table-column prop="release" label="发布时间" width="150" sortable="custom">
           <template #default="scope">
             <el-tag type="info" effect="plain">{{ scope.row.release }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="160" fixed="right">
+        <el-table-column label="操作" width="180" fixed="right">
           <template #default="scope">
             <el-space>
               <el-button type="primary" text @click="goToProperty(scope.row.id)">
@@ -233,7 +234,8 @@ const shortcutsChunks = computed(() => {
             </el-space>
           </template>
         </el-table-column>
-      </el-table>
+        </el-table>
+      </div>
     </div>
   </div>
 </template>
@@ -288,6 +290,13 @@ const shortcutsChunks = computed(() => {
 
 .property-grid {
   margin-top: 8px;
+  align-items: stretch;
+}
+
+.property-grid .el-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .property-card {
@@ -295,13 +304,23 @@ const shortcutsChunks = computed(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  height: 100%;
+}
+
+.property-card :deep(.el-card__body) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 0 !important;
+  height: 100%;
+  min-height: 0;
 }
 
 .property-card__cover {
   width: 100%;
   height: 200px;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .property-card__body {
@@ -309,6 +328,18 @@ const shortcutsChunks = computed(() => {
   flex-direction: column;
   gap: 10px;
   padding: 20px 16px 16px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.property-card__tags {
+  flex-shrink: 0;
+}
+
+.property-card__body > .el-button {
+  margin-top: auto;
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .property-card__header {
@@ -428,6 +459,52 @@ const shortcutsChunks = computed(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-wrapper :deep(.el-table) {
+  min-width: 100%;
+}
+
+.table-wrapper :deep(.el-table__body-wrapper),
+.table-wrapper :deep(.el-table__header-wrapper) {
+  overflow-x: visible;
+}
+
+.table-wrapper :deep(.el-table td),
+.table-wrapper :deep(.el-table th) {
+  overflow: visible;
+}
+
+/* 标题列允许换行显示完整内容 */
+.table-wrapper :deep(.el-table td .table-title) {
+  white-space: normal;
+  word-break: break-word;
+}
+
+.table-title {
+  white-space: normal;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.table-title .el-button {
+  white-space: normal;
+  text-align: left;
+  word-break: break-word;
+  height: auto;
+  line-height: 1.5;
+  padding: 0;
+  display: block;
+}
+
+.table-sub {
+  white-space: normal;
+  word-break: break-word;
 }
 
 @media (max-width: 1199px) {
