@@ -7,7 +7,6 @@ const router = useRouter()
 const route = useRoute()
 
 const viewportWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1920)
-const manualCollapsed = ref(false)
 const drawerVisible = ref(false)
 const city = ref('北京')
 const searchKeyword = ref('')
@@ -43,11 +42,6 @@ const menuItems = [
     path: '/discover',
     label: '发现',
     icon: 'Compass'
-  },
-  {
-    path: '/my',
-    label: '我的',
-    icon: 'User'
   }
 ]
 
@@ -64,7 +58,7 @@ const notifications = ref([
   },
   {
     id: 3,
-    title: '【服务提醒】“深度保洁”预约将在明日09:00开始。',
+    title: '【服务提醒】"深度保洁"预约将在明日09:00开始。',
     time: '昨天'
   }
 ])
@@ -72,21 +66,10 @@ const notifications = ref([
 const unreadCount = computed(() => notifications.value.length)
 const showLayout = computed(() => route.meta?.layout !== 'blank')
 const isMobile = computed(() => viewportWidth.value < 1024)
-const isTablet = computed(() => viewportWidth.value >= 1024 && viewportWidth.value < 1200)
-const isDesktop = computed(() => viewportWidth.value >= 1200)
-const effectiveCollapsed = computed(() => {
-  if (isMobile.value) return true
-  if (isTablet.value) return true
-  return manualCollapsed.value
-})
-const asideWidth = computed(() => (effectiveCollapsed.value ? '64px' : '240px'))
 const activeMenu = computed(() => route.meta?.activeMenu ?? route.path)
 
 const handleResize = () => {
   viewportWidth.value = window.innerWidth
-  if (isTablet.value) {
-    manualCollapsed.value = true
-  }
   if (isMobile.value) {
     drawerVisible.value = false
   }
@@ -110,10 +93,6 @@ watch(
   }
 )
 
-const toggleCollapse = () => {
-  manualCollapsed.value = !manualCollapsed.value
-}
-
 const handleMenuSelect = (path) => {
   if (path === route.path) return
   router.push(path)
@@ -130,6 +109,10 @@ const handleSearch = () => {
     return
   }
   ElMessage.success(`已为您查找 “${keyword}” 相关内容`)
+}
+
+const goToMy = () => {
+  router.push('/my')
 }
 
 const goToProfile = () => {
@@ -149,19 +132,15 @@ const openDrawer = () => {
   <div class="app-root">
     <template v-if="showLayout">
       <el-container class="app-shell">
-        <template v-if="!isMobile">
-          <el-aside
-            class="app-aside"
-            :width="asideWidth"
-            :class="{ 'app-aside--collapsed': effectiveCollapsed }"
-          >
+        <el-header class="app-header">
+          <div class="header-left">
             <div class="logo-area">
               <span class="logo-mark">Vue优设</span>
-              <span v-if="!effectiveCollapsed" class="logo-slogan">一站式品质租住生活</span>
             </div>
             <el-menu
+              v-if="!isMobile"
               class="app-menu"
-              :collapse="effectiveCollapsed"
+              mode="horizontal"
               :default-active="activeMenu"
               background-color="transparent"
               @select="handleMenuSelect"
@@ -179,96 +158,83 @@ const openDrawer = () => {
                 </template>
               </el-menu-item>
             </el-menu>
-            <div class="aside-footer">
-              <el-button v-if="isDesktop" text class="collapse-btn" @click="toggleCollapse">
-                <el-icon>
-                  <component :is="effectiveCollapsed ? 'Expand' : 'Fold'" />
-                </el-icon>
-                <span v-if="!effectiveCollapsed">收起菜单</span>
-              </el-button>
-              <div class="service-banner" v-if="!effectiveCollapsed">
-                <p class="banner-title">智能助手</p>
-                <p class="banner-desc">快速预约保洁、搬家、活动咨询。</p>
-                <el-button type="primary" size="small" plain>打开coze智能体</el-button>
-              </div>
-            </div>
-          </el-aside>
-        </template>
+            <el-button
+              v-if="isMobile"
+              class="ghost-btn"
+              type="primary"
+              circle
+              @click="openDrawer"
+            >
+              <el-icon><Menu /></el-icon>
+            </el-button>
+          </div>
 
-        <el-container>
-          <el-header class="app-header">
-            <div class="header-left">
-              <el-button
-                v-if="isMobile"
-                class="ghost-btn"
-                type="primary"
-                circle
-                @click="openDrawer"
+          <div class="header-center">
+            <div v-if="!isMobile" class="city-switch">
+              <span class="city-label">当前城市</span>
+              <el-select
+                v-model="city"
+                size="large"
+                class="city-select"
+                :teleported="false"
+                placeholder="选择城市"
               >
-                <el-icon><Menu /></el-icon>
-              </el-button>
-              <div v-else class="city-switch">
-                <span class="city-label">当前城市</span>
-                <el-select
-                  v-model="city"
-                  size="large"
-                  class="city-select"
-                  :teleported="false"
-                  placeholder="选择城市"
-                >
-                  <el-option
-                    v-for="item in cityOptions"
-                    :key="item"
-                    :label="item"
-                    :value="item"
-                  />
-                </el-select>
-              </div>
-              <div class="header-search">
-                <el-input
-                  v-model="searchKeyword"
-                  size="large"
-                  placeholder="搜索房源、服务、活动"
-                  @keyup.enter="handleSearch"
-                >
-                  <template #prefix>
-                    <el-icon><Search /></el-icon>
-                  </template>
-                  <template #append>
-                    <el-button type="primary" @click="handleSearch">搜索</el-button>
-                  </template>
-                </el-input>
-              </div>
+                <el-option
+                  v-for="item in cityOptions"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+                />
+              </el-select>
             </div>
-
-            <div class="header-right">
-              <el-popover placement="bottom" width="280" trigger="click" popper-class="notice-popper">
-                <template #reference>
-                  <el-badge :value="unreadCount" class="message-badge" :hidden="!unreadCount">
-                    <el-button text circle>
-                      <el-icon><Bell /></el-icon>
-                    </el-button>
-                  </el-badge>
+            <div class="header-search">
+              <el-input
+                v-model="searchKeyword"
+                size="large"
+                placeholder="搜索房源、服务、活动"
+                @keyup.enter="handleSearch"
+              >
+                <template #prefix>
+                  <el-icon><Search /></el-icon>
                 </template>
-                <div class="notification-list">
-                  <div v-for="notice in notifications" :key="notice.id" class="notice-item">
-                    <p class="notice-title">{{ notice.title }}</p>
-                    <p class="notice-time">{{ notice.time }}</p>
-                  </div>
-                  <div class="notice-footer">
-                    <el-button link type="primary" @click="router.push('/discover')">
-                      查看全部消息
-                    </el-button>
-                  </div>
+                <template #append>
+                  <el-button type="primary" @click="handleSearch">搜索</el-button>
+                </template>
+              </el-input>
+            </div>
+          </div>
+
+          <div class="header-right">
+            <el-popover placement="bottom" width="280" trigger="click" popper-class="notice-popper">
+              <template #reference>
+                <el-badge :value="unreadCount" class="message-badge" :hidden="!unreadCount">
+                  <el-button text circle>
+                    <el-icon><Bell /></el-icon>
+                  </el-button>
+                </el-badge>
+              </template>
+              <div class="notification-list">
+                <div v-for="notice in notifications" :key="notice.id" class="notice-item">
+                  <p class="notice-title">{{ notice.title }}</p>
+                  <p class="notice-time">{{ notice.time }}</p>
                 </div>
-              </el-popover>
-              <el-divider direction="vertical" />
+                <div class="notice-footer">
+                  <el-button link type="primary" @click="router.push('/discover')">
+                    查看全部消息
+                  </el-button>
+                </div>
+              </div>
+            </el-popover>
+            <el-divider direction="vertical" />
+            <div class="user-area">
+              <el-avatar
+                class="user-avatar"
+                size="medium"
+                src="https://picsum.photos/80?grayscale&random=12"
+                @click="goToMy"
+              />
               <el-dropdown>
-                <span class="user-entry">
-                  <el-avatar
-                    size="medium"
-                    src="https://picsum.photos/80?grayscale&random=12"
-                  />
+                <span class="user-meta-wrapper">
                   <span class="user-meta">
                     <span class="user-name">张租客</span>
                     <span class="user-level">UID 278930</span>
@@ -277,7 +243,8 @@ const openDrawer = () => {
                 </span>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item @click="goToProfile">个人资料</el-dropdown-item>
+                    <el-dropdown-item @click="goToMy">我的</el-dropdown-item>
+                    <el-dropdown-item divided @click="goToProfile">个人资料</el-dropdown-item>
                     <el-dropdown-item @click="router.push('/my/want')">
                       我的想看
                     </el-dropdown-item>
@@ -286,18 +253,18 @@ const openDrawer = () => {
                 </template>
               </el-dropdown>
             </div>
-          </el-header>
+          </div>
+        </el-header>
 
-          <el-main class="app-main">
-            <el-scrollbar>
-              <router-view v-slot="{ Component }">
-                <transition name="fade-slide" mode="out-in">
-                  <component :is="Component" />
-                </transition>
-              </router-view>
-            </el-scrollbar>
-          </el-main>
-        </el-container>
+        <el-main class="app-main">
+          <el-scrollbar>
+            <router-view v-slot="{ Component }">
+              <transition name="fade-slide" mode="out-in">
+                <component :is="Component" />
+              </transition>
+            </router-view>
+          </el-scrollbar>
+        </el-main>
       </el-container>
 
       <el-drawer
@@ -348,101 +315,79 @@ const openDrawer = () => {
   min-height: 100vh;
 }
 
-.app-aside {
-  background: linear-gradient(180deg, #1e2a68 0%, #12193a 100%);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  transition: var(--transition-base);
-  padding: 18px 0 12px;
-}
-
-.app-aside--collapsed {
-  align-items: center;
-}
-
 .logo-area {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 20px;
-  margin-bottom: 24px;
 }
 
 .logo-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 16px;
+  padding: 8px 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, #1e2a68 0%, #12193a 100%);
+  color: #fff;
   font-weight: 700;
   font-size: 16px;
   letter-spacing: 1px;
 }
 
-.logo-slogan {
-  font-size: 13px;
-  opacity: 0.75;
+.app-menu {
+  border-bottom: none;
+  flex: 0 0 auto;
+  overflow: visible !important;
 }
 
-.app-menu {
-  border-right: none;
-  flex: 1;
+.app-menu :deep(.el-menu) {
+  overflow: visible !important;
+  flex-wrap: nowrap;
+}
+
+/* 隐藏省略号子菜单 */
+.app-menu :deep(.el-submenu) {
+  display: none !important;
+}
+
+.app-menu :deep(.el-submenu__title),
+.app-menu :deep(.el-menu--collapse) {
+  display: none !important;
+}
+
+/* 确保所有菜单项都显示 */
+.app-menu :deep(.el-menu--horizontal) {
+  overflow: visible !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+}
+
+.app-menu :deep(.el-menu--horizontal > .el-menu-item) {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .app-menu :deep(.el-menu-item) {
   height: 48px;
-  margin: 6px 12px;
-  border-radius: 12px;
-  color: rgba(255, 255, 255, 0.75);
+  margin: 0 4px;
+  border-radius: 8px;
+  color: var(--gray-2);
   font-size: 15px;
   transition: var(--transition-base);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .app-menu :deep(.el-menu-item.is-active),
 .app-menu :deep(.el-menu-item:hover) {
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
+  background: rgba(47, 84, 235, 0.1);
+  color: var(--brand-primary);
 }
 
 .app-menu :deep(.el-menu-item .el-icon) {
   font-size: 18px;
-}
-
-.aside-footer {
-  padding: 0 16px 12px;
-}
-
-.collapse-btn {
-  width: 100%;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.65);
-}
-
-.collapse-btn:hover {
-  color: #fff;
-}
-
-.service-banner {
-  margin-top: 16px;
-  background: rgba(47, 84, 235, 0.18);
-  padding: 18px;
-  border-radius: var(--border-radius-md);
-  color: #fff;
-}
-
-.banner-title {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.banner-desc {
-  font-size: 12px;
-  line-height: 1.5;
-  margin-bottom: 12px;
-  opacity: 0.85;
+  margin-right: 6px;
 }
 
 .app-header {
@@ -453,19 +398,32 @@ const openDrawer = () => {
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  gap: 12px;
+  gap: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .header-left {
   display: flex;
   align-items: center;
+  gap: 24px;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: visible;
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
   gap: 18px;
-  flex: 1;
+  flex: 1 1 auto;
+  justify-content: center;
+  min-width: 0;
 }
 
 .header-search {
-  flex: 1;
-  min-width: 360px;
+  flex: 1 1 auto;
+  min-width: 280px;
+  max-width: 500px;
 }
 
 .city-switch {
@@ -521,10 +479,25 @@ const openDrawer = () => {
   text-align: right;
 }
 
-.user-entry {
+.user-area {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+}
+
+.user-avatar {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.user-avatar:hover {
+  transform: scale(1.05);
+}
+
+.user-meta-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
 }
 
@@ -601,6 +574,11 @@ const openDrawer = () => {
 @media (max-width: 1399px) {
   .header-search {
     min-width: 280px;
+    max-width: 500px;
+  }
+  
+  .header-center {
+    gap: 12px;
   }
 }
 
@@ -611,6 +589,16 @@ const openDrawer = () => {
 
   .header-search {
     min-width: 220px;
+    max-width: 400px;
+  }
+  
+  .header-left {
+    gap: 16px;
+  }
+  
+  .app-menu :deep(.el-menu-item) {
+    margin: 0 2px;
+    padding: 0 12px;
   }
 }
 
@@ -622,19 +610,40 @@ const openDrawer = () => {
   .header-left {
     gap: 12px;
   }
+  
+  .header-center {
+    gap: 10px;
+  }
+  
+  /* 城市选择器始终显示 */
+  /* .city-switch {
+    display: none;
+  } */
 }
 
 @media (max-width: 767px) {
+  .app-header {
+    padding: 0 16px;
+    gap: 12px;
+  }
+  
   .header-search {
     min-width: auto;
+    max-width: none;
   }
 
   .header-right {
-    gap: 10px;
+    gap: 8px;
   }
 
-  .user-meta {
+  /* 用户信息始终显示 */
+  /* .user-meta {
     display: none;
+  } */
+  
+  .logo-mark {
+    padding: 6px 12px;
+    font-size: 14px;
   }
 }
 </style>
