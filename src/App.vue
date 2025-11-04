@@ -1,8 +1,8 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { useUserStore } from '@/stores/user'
+import { ElMessage } from 'element-plus'
+import allCitiesData from './data/cities.json'
 
 const router = useRouter()
 const route = useRoute()
@@ -13,7 +13,8 @@ const drawerVisible = ref(false)
 const city = ref('北京')
 const searchKeyword = ref('')
 
-const cityOptions = [
+// 热门城市（默认显示）
+const hotCities = [
   '北京',
   '上海',
   '广州',
@@ -21,8 +22,17 @@ const cityOptions = [
   '杭州',
   '成都',
   '重庆',
-  '苏州'
+  '苏州',
+  '南京',
+  '武汉',
+  '西安',
+  '天津'
 ]
+
+// 所有城市数据
+const allCities = ref([...allCitiesData])
+// 当前显示的城市列表（默认显示热门城市，搜索时显示匹配结果）
+const cityOptions = ref([...hotCities])
 
 const menuItems = [
   {
@@ -76,6 +86,29 @@ const handleResize = () => {
     drawerVisible.value = false
   }
 }
+
+// 城市搜索函数
+const handleCitySearch = (query) => {
+  const queryStr = (query || '').trim()
+  if (!queryStr) {
+    // 无搜索内容时，显示热门城市
+    cityOptions.value = [...hotCities]
+    return
+  }
+  // 搜索匹配的城市（支持中文和拼音首字母）
+  const queryLower = queryStr.toLowerCase()
+  const filtered = allCities.value.filter((cityName) => {
+    const cityLower = cityName.toLowerCase()
+    return cityLower.includes(queryLower) || cityName.includes(queryStr)
+  })
+  // 限制搜索结果最多显示 50 个，避免列表过长
+  cityOptions.value = filtered.slice(0, 50)
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+  handleResize()
+})
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
@@ -215,6 +248,10 @@ onMounted(() => {
                 class="city-select"
                 :teleported="false"
                 placeholder="选择城市"
+                filterable
+                remote
+                :remote-method="handleCitySearch"
+                clearable
               >
                 <el-option
                   v-for="item in cityOptions"
