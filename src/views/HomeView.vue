@@ -52,6 +52,27 @@ const goToProperty = (id) => {
 const handleShortcutClick = (link) => {
   router.push(link)
 }
+// 服务保障数据
+const services = ref([
+  {
+    id: 1,
+    icon: 'el-icon-check',
+    title: '真实房源保障',
+    description: '严格审核房源信息，确保真实可靠，杜绝虚假房源'
+  },
+  {
+    id: 2,
+    icon: 'el-icon-document',
+    title: '合同安全保障',
+    description: '标准化租赁合同，法律保障双方权益，透明公正'
+  },
+  {
+    id: 3,
+    icon: 'el-icon-headset',
+    title: '全程客服支持',
+    description: '专业客服团队，7×24小时在线服务，解决您的问题'
+  }
+])
 
 const shortcutsChunks = computed(() => {
   const chunkSize = 4
@@ -65,36 +86,40 @@ const shortcutsChunks = computed(() => {
 
 <template>
   <div class="page-wrapper">
-    <div class="page-title">
-      <div>
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item>首页</el-breadcrumb-item>
-        </el-breadcrumb>
-        <h2>Vue优设 · 精选好房与生活服务</h2>
-      </div>
-      <el-tag size="large" type="success">今日已为 2,340 位用户精准匹配</el-tag>
-    </div>
-
-    <div class="section-card banner-card">
-      <el-carousel height="320px" trigger="click" indicator-position="outside">
-        <el-carousel-item
-          v-for="item in bannerSlides"
-          :key="item.id"
-          @click="router.push(item.link)"
-        >
-          <div
-            class="banner"
-            :style="{ backgroundImage: `url(${item.cover})` }"
-          >
-            <div class="banner__content">
-              <h3>{{ item.title }}</h3>
-              <p>{{ item.description }}</p>
-              <el-button type="primary" size="large">立即查看</el-button>
+    <el-row>
+      <el-col :span="8">
+        <div class="banner-header">
+          <div class="banner-content">
+            <h1>找到您的理想住所</h1>
+            <p>精选优质房源，智能匹配居住需求，享受便捷租赁体验</p>
+            <div class="banner-buttons">
+              <el-button type="primary" @click="goToList" style="background-color: #fff; color: #fff; border-color: #09f;">立即找房</el-button>
+              <el-button type="default" @click="showRentalForm" style="background-color: transparent; color: #fff; border-color: #fff;">我要出租</el-button>
             </div>
           </div>
-        </el-carousel-item>
-      </el-carousel>
-    </div>
+        </div>
+      </el-col>
+      <el-col :span="16"> 
+        <el-carousel height="320px" trigger="click" indicator-position="outside">
+          <el-carousel-item
+            v-for="item in bannerSlides"
+            :key="item.id"
+            @click="router.push(item.link)"
+          >
+            <div
+              class="banner"
+              :style="{ backgroundImage: `url(${item.cover})` }"
+            >
+              <div class="banner__content">
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.description }}</p>
+                <el-button type="primary" size="large">立即查看</el-button>
+              </div>
+            </div>
+          </el-carousel-item>
+        </el-carousel>
+      </el-col>
+    </el-row>
 
     <div class="section-card">
       <div class="section-card__header">
@@ -138,35 +163,66 @@ const shortcutsChunks = computed(() => {
       </div>
     </div>
 
-    <div class="section-card">
-      <div class="section-card__header">
-        <span class="section-card__title">生活服务入口</span>
-        <el-text type="info">搬家、保洁、维修、家电清洗等一站预约</el-text>
-      </div>
-      <div class="shortcuts">
-        <div
-          v-for="(chunk, index) in shortcutsChunks"
-          :key="index"
-          class="shortcuts__row"
-        >
-          <div
-            v-for="item in chunk"
-            :key="item.id"
-            class="shortcut-item"
-            @click="handleShortcutClick(item.link)"
-          >
-            <el-icon class="shortcut-item__icon">
-              <component :is="item.icon" />
-            </el-icon>
-            <div class="shortcut-item__info">
-              <h5>{{ item.title }}</h5>
-              <p>{{ item.desc }}</p>
-            </div>
-            <el-icon><ArrowRight /></el-icon>
+    <el-row>
+      <el-col :span="12">
+        <div class="section-card">
+          <div class="section-card__header">
+            <span class="section-card__title">发现</span>
+            <el-text type="info">社区活动与福利 · 发现更多生活惊喜</el-text>
           </div>
+          <el-carousel height="320px" trigger="click" indicator-position="outside">
+          <el-carousel-item
+            v-for="item in bannerSlides"
+            :key="item.id"
+            @click="router.push(item.link)"
+          >
+            <div
+              class="banner"
+              :style="{ backgroundImage: `url(${item.cover})` }"
+            >
+              <div class="banner__content">
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.description }}</p>
+                <el-button type="primary" size="large">立即查看</el-button>
+              </div>
+            </div>
+          </el-carousel-item>
+        </el-carousel>
         </div>
-      </div>
-    </div>
+      </el-col>
+      <el-col :span="12"> 
+        <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">生活服务入口</span>
+                <el-text type="info">搬家、保洁、维修、家电清洗等一站预约</el-text>
+              </div>
+              <div class="shortcuts">
+                <div
+                  v-for="(chunk, index) in shortcutsChunks"
+                  :key="index"
+                  class="shortcuts__row"
+                >
+                  <div
+                    v-for="item in chunk"
+                    :key="item.id"
+                    class="shortcut-item"
+                    @click="handleShortcutClick(item.link)"
+                  >
+                    <el-icon class="shortcut-item__icon">
+                      <component :is="item.icon" />
+                    </el-icon>
+                    <div class="shortcut-item__info">
+                      <h5>{{ item.title }}</h5>
+                      <p>{{ item.desc }}</p>
+                    </div>
+                    <el-icon><ArrowRight /></el-icon>
+                  </div>
+                </div>
+              </div>
+        </div>
+      </el-col>
+    </el-row>
+    
 
     <div class="section-card">
       <div class="section-card__header">
@@ -238,6 +294,19 @@ const shortcutsChunks = computed(() => {
       </div>
     </div>
   </div>
+
+   <!-- 贴心服务保障 -->
+    <div class="services">
+      <h2 class="section-title">贴心服务保障</h2>
+      <div class="services-content">
+        <div class="service-item" v-for="service in services" :key="service.id">
+          <i :class="service.icon"></i>
+          <h3 class="service-title">{{ service.title }}</h3>
+          <p class="service-desc">{{ service.description }}</p>
+        </div>
+      </div>
+    </div>
+
 </template>
 
 <style scoped>
@@ -247,13 +316,56 @@ const shortcutsChunks = computed(() => {
   gap: 24px;
 }
 
+/* Banner内容样式 */
+.banner-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  padding-bottom: 90px;
+}
+.banner-content h1 {
+  padding-top: 70px;
+  font-size: 36px;
+  color: #fff;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.banner-content p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+
+/* 共享背景的头部区域 */
+.banner-header {
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  height: 320px;
+  position: relative;
+  padding-top: 15px;
+  background-image: url('/src/data/picture/braground.png');
+  background-size: 100%;
+}
+
+.banner-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to bottom, rgba(0, 128, 96, 0.6), rgba(0, 128, 96, 0.8));
+  z-index: 1;
+}
+
 .banner {
   position: relative;
   width: 100%;
   height: 100%;
   background-size: cover;
   background-position: center;
-  border-radius: var(--border-radius-lg);
+  border-radius: 0;
   overflow: hidden;
   cursor: pointer;
 }
@@ -262,7 +374,7 @@ const shortcutsChunks = computed(() => {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0.05) 100%);
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.05) 100%);
 }
 
 .banner__content {
@@ -334,12 +446,14 @@ const shortcutsChunks = computed(() => {
 
 .property-card__tags {
   flex-shrink: 0;
+  color: rgb(9, 170, 49);
 }
 
 .property-card__body > .el-button {
   margin-top: auto;
   flex-shrink: 0;
   width: 100%;
+  color: #fff;
 }
 
 .property-card__header {
@@ -358,7 +472,7 @@ const shortcutsChunks = computed(() => {
 
 .property-card__price strong {
   font-size: 22px;
-  color: var(--brand-primary);
+  color: #e97474;
 }
 
 .property-card__desc {
@@ -377,6 +491,7 @@ const shortcutsChunks = computed(() => {
 .property-card__tags {
   display: flex;
   flex-wrap: wrap;
+  color: aquamarine;
   gap: 8px;
 }
 
@@ -577,4 +692,29 @@ const shortcutsChunks = computed(() => {
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   }
 }
+
+.services {
+  background-color: #fff;
+  margin-top: 20px;
+  padding: 30px 0;
+}
+
+/* 区块标题共享样式 */
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #303133;
+}
+
+/* 内容容器共享样式 */
+.services-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 20px;
+}
+
 </style>
