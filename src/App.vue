@@ -3,9 +3,11 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import allCitiesData from './data/cities.json'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const route = useRoute()
+const userStore = useUserStore()
 
 const viewportWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1920)
 const drawerVisible = ref(false)
@@ -152,9 +154,49 @@ const goToLogin = () => {
   router.push('/login')
 }
 
+// 退出登录
+const handleLogout = async () => {
+  try {
+    await ElMessageBox.confirm(
+      '确定要退出登录吗？',
+      '退出登录',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    // 清除用户信息和 localStorage
+    userStore.logout()
+    
+    ElMessage.success('已退出登录')
+    
+    // 跳转到登录页
+    router.push('/login')
+  } catch {
+    // 用户取消
+  }
+}
+
+// 获取用户信息（从 store 或默认值）
+const currentUser = computed(() => userStore.userInfo || {
+  name: '游客',
+  uid: '未登录',
+  avatar: 'https://picsum.photos/80?grayscale&random=12'
+})
+
 const openDrawer = () => {
   drawerVisible.value = true
 }
+
+// 页面加载时初始化
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+  handleResize()
+  // 从 localStorage 恢复用户信息
+  userStore.restoreFromStorage()
+})
 </script>
 
 <template>
@@ -263,14 +305,14 @@ const openDrawer = () => {
               <el-avatar
                 class="user-avatar"
                 size="medium"
-                src="https://picsum.photos/80?grayscale&random=12"
+                :src="currentUser.avatar"
                 @click="goToMy"
               />
-              <el-dropdown>
+              <el-dropdown v-if="userStore.isLoggedIn">
                 <span class="user-meta-wrapper">
                   <span class="user-meta">
-                    <span class="user-name">张租客</span>
-                    <span class="user-level">UID 278930</span>
+                    <span class="user-name">{{ currentUser.name }}</span>
+                    <span class="user-level">{{ currentUser.uid }}</span>
                   </span>
                   <el-icon><ArrowDown /></el-icon>
                 </span>
@@ -284,10 +326,13 @@ const openDrawer = () => {
                     <el-dropdown-item divided @click="router.push('/about')">
                       关于我们
                     </el-dropdown-item>
-                    <el-dropdown-item divided @click="goToLogin">退出登录</el-dropdown-item>
+                    <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
+              <el-button v-else type="primary" size="small" @click="goToLogin">
+                登录
+              </el-button>
             </div>
           </div>
         </el-header>

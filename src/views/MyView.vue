@@ -1,21 +1,31 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { ElMessageBox, ElMessage } from 'element-plus'
 
 const router = useRouter()
-const isLogin = ref(true)
+const userStore = useUserStore()
 
-const userInfo = ref({
-  name: '张租客',
-  uid: 'UID278930',
+// 从 store 获取登录状态和用户信息
+const isLogin = computed(() => userStore.isLoggedIn)
+const userInfo = computed(() => userStore.userInfo || {
+  name: '游客',
+  uid: '未登录',
   avatar: 'https://picsum.photos/120?random=6',
-  tags: ['精致生活家', '连读 3 年优设会员'],
+  tags: [],
   stats: [
-    { label: '想看房源', value: 8 },
-    { label: '约看记录', value: 3 },
-    { label: '服务预约', value: 5 },
-    { label: '社区活动', value: 2 }
+    { label: '想看房源', value: 0 },
+    { label: '约看记录', value: 0 },
+    { label: '服务预约', value: 0 },
+    { label: '社区活动', value: 0 }
   ]
+})
+
+
+// 页面加载时，从 localStorage 恢复用户信息
+onMounted(() => {
+  userStore.restoreFromStorage()
 })
 
 const entryList = [
@@ -24,15 +34,47 @@ const entryList = [
   { title: '我的约看', icon: 'Calendar', desc: '预约看房管理', link: '/my/appointment' },
   { title: '我的拼租', icon: 'Connection', desc: '拼租信息管理', link: '/my/share' },
   { title: '个人资料', icon: 'User', desc: '修改头像昵称', link: '/my/profile' },
-  { title: '服务订单', icon: 'Tickets', desc: '保洁搬家订单', link: '/service' }
+  { title: '服务订单', icon: 'Tickets', desc: '保洁搬家订单', link: '/orders' }
 ]
 
 const goTo = (link) => {
+  // 如果未登录，跳转到登录页
+  if (!isLogin.value) {
+    ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
   router.push(link)
 }
 
+// 跳转到登录页
 const handleLogin = () => {
   router.push('/login')
+}
+
+// 退出登录
+const handleLogout = async () => {
+  try {
+    await ElMessageBox.confirm(
+      '确定要退出登录吗？',
+      '退出登录',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    // 清除用户信息和 localStorage
+    userStore.logout()
+    
+    ElMessage.success('已退出登录')
+    
+    // 跳转到登录页
+    router.push('/login')
+  } catch {
+    // 用户取消
+  }
 }
 </script>
 
@@ -46,11 +88,12 @@ const handleLogin = () => {
         </el-breadcrumb>
         <h2>个人中心 · 管理我的租住生活</h2>
       </div>
-      <el-switch
-        v-model="isLogin"
-        active-text="已登录视图"
-        inactive-text="未登录视图"
-      />
+      <el-tag v-if="isLogin" type="success" size="large">
+        已登录
+      </el-tag>
+      <el-tag v-else type="info" size="large">
+        未登录
+      </el-tag>
     </div>
 
     <div v-if="isLogin" class="section-card">
@@ -71,7 +114,7 @@ const handleLogin = () => {
           <el-button type="primary" plain size="large" @click="goTo('/my/profile')">
             编辑资料
           </el-button>
-          <el-button type="danger" plain size="large" @click="handleLogin">
+          <el-button type="danger" plain size="large" @click="handleLogout">
             退出登录
           </el-button>
         </div>
