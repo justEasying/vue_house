@@ -1,10 +1,24 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { mapBoundary, propertyDetail } from '../data/mockData'
+import { wantList, appointmentList } from '../utils/storage'
 
 const router = useRouter()
 const detail = propertyDetail
+
+// 检查是否已在想看列表
+const isInWantList = ref(false)
+
+// 检查是否已收藏
+const checkWantStatus = () => {
+  isInWantList.value = wantList.has(detail.id)
+}
+
+onMounted(() => {
+  checkWantStatus()
+})
 
 const markerPosition = computed(() => {
   const { lat, lng } = detail.map
@@ -18,6 +32,160 @@ const markerPosition = computed(() => {
 
 const goBack = () => {
   router.back()
+}
+
+// 加入想看
+const handleAddToWant = () => {
+  if (isInWantList.value) {
+    ElMessage.warning('该房源已在想看列表中')
+    return
+  }
+  
+  const propertyData = {
+    id: detail.id,
+    title: detail.title,
+    price: detail.price,
+    layout: detail.layout,
+    size: detail.area,
+    address: detail.address || '朝阳区 · 国贸',
+    cover: detail.gallery?.[0] || 'https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&w=240&q=80'
+  }
+  
+  const result = wantList.add(propertyData)
+  if (result.success) {
+    ElMessage.success('已添加到想看列表')
+    isInWantList.value = true
+  } else {
+    ElMessage.warning(result.message || '添加失败')
+  }
+}
+
+// 预约看房相关
+const appointmentVisible = ref(false)
+const appointmentForm = ref({
+  name: '',
+  phone: '',
+  date: new Date(),
+  remarks: ''
+})
+
+const datePickerVisible = ref(false)
+
+// 格式化日期
+const formatDate = (date) => {
+  const d = new Date(date)
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+// 获取星期几
+const getWeekday = (date) => {
+  const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+  return weekdays[new Date(date).getDay()]
+}
+
+// 判断是否是今天
+const isToday = (date) => {
+  const today = new Date()
+  const d = new Date(date)
+  return (
+    d.getFullYear() === today.getFullYear() &&
+    d.getMonth() === today.getMonth() &&
+    d.getDate() === today.getDate()
+  )
+}
+
+// 获取可选日期列表（未来7天）
+const availableDates = computed(() => {
+  const dates = []
+  const today = new Date()
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(today)
+    date.setDate(today.getDate() + i)
+    dates.push(date)
+  }
+  return dates
+})
+
+// 显示日期选择器
+const showDatePicker = () => {
+  datePickerVisible.value = !datePickerVisible.value
+}
+
+// 选择日期
+const selectDate = (date) => {
+  appointmentForm.value.date = date
+  datePickerVisible.value = false
+}
+
+// 打开预约弹窗
+const openAppointment = () => {
+  appointmentVisible.value = true
+  appointmentForm.value = {
+    name: '',
+    phone: '',
+    date: new Date(),
+    remarks: ''
+  }
+  datePickerVisible.value = false
+}
+
+// 关闭预约弹窗
+const closeAppointment = () => {
+  appointmentVisible.value = false
+  datePickerVisible.value = false
+}
+
+// 提交预约
+const submitAppointment = () => {
+  // 表单验证
+  if (!appointmentForm.value.name.trim()) {
+    ElMessage.warning('请输入姓名')
+    return
+  }
+  if (!appointmentForm.value.phone.trim()) {
+    ElMessage.warning('请输入手机号')
+    return
+  }
+  // 简单的手机号验证
+  const phoneReg = /^1[3-9]\d{9}$/
+  if (!phoneReg.test(appointmentForm.value.phone)) {
+    ElMessage.warning('请输入正确的手机号')
+    return
+  }
+  if (!appointmentForm.value.date) {
+    ElMessage.warning('请选择预约日期')
+    return
+  }
+
+  // 保存到约看列表
+  const appointmentData = {
+    title: detail.title,
+    type: '约看',
+    time: formatDate(appointmentForm.value.date) + ' 全天随时可看',
+    status: '待确认',
+    cover: detail.gallery?.[0] || 'https://images.unsplash.com/photo-1599423300746-b62533397364?auto=format&fit=crop&w=240&q=80',
+    propertyId: detail.id,
+    name: appointmentForm.value.name,
+    phone: appointmentForm.value.phone,
+    date: formatDate(appointmentForm.value.date),
+    remarks: appointmentForm.value.remarks
+  }
+  
+  const result = appointmentList.add(appointmentData)
+  if (result.success) {
+    ElMessage.success('预约成功！我们会在预约时间前联系您')
+    closeAppointment()
+    
+    // 可以跳转到预约列表
+    setTimeout(() => {
+      router.push('/my/appointment')
+    }, 1500)
+  } else {
+    ElMessage.error('预约失败，请重试')
+  }
 }
 </script>
 
@@ -61,8 +229,16 @@ const goBack = () => {
               <span>{{ detail.floor }}</span>
             </div>
             <div class="actions">
-              <el-button type="primary" size="large">预约看房</el-button>
-              <el-button size="large" plain>加入想看</el-button>
+              <el-button type="primary" size="large" @click="openAppointment">预约看房</el-button>
+              <el-button 
+                size="large" 
+                :plain="!isInWantList"
+                :type="isInWantList ? 'success' : 'default'"
+                @click="handleAddToWant"
+              >
+                <el-icon v-if="isInWantList"><CircleCheck /></el-icon>
+                {{ isInWantList ? '已在想看' : '加入想看' }}
+              </el-button>
               <el-button size="large" text>
                 <el-icon><Share /></el-icon>
                 分享
@@ -165,6 +341,94 @@ const goBack = () => {
         </div>
       </div>
     </div>
+
+    <!-- 预约看房底部弹窗 -->
+    <el-drawer
+      v-model="appointmentVisible"
+      :with-header="false"
+      direction="btt"
+      size="70%"
+      class="appointment-drawer"
+      :close-on-click-modal="true"
+    >
+      <div class="appointment-modal">
+        <h2 class="appointment-title">预约信息</h2>
+        
+        <div class="appointment-form">
+          <!-- 姓名 -->
+          <div class="form-item">
+            <label class="form-label">姓名</label>
+            <el-input
+              v-model="appointmentForm.name"
+              placeholder="请输入姓名"
+              class="form-input"
+              clearable
+            />
+          </div>
+
+          <!-- 手机号 -->
+          <div class="form-item">
+            <label class="form-label">手机号</label>
+            <el-input
+              v-model="appointmentForm.phone"
+              placeholder="请输入手机号"
+              class="form-input"
+              maxlength="11"
+              clearable
+            />
+          </div>
+
+          <!-- 预约日期 -->
+          <div class="form-item">
+            <label class="form-label">预约日期</label>
+            <div class="date-selector" @click="showDatePicker">
+              <span class="date-display">
+                {{ formatDate(appointmentForm.date) }}
+                <span v-if="isToday(appointmentForm.date)" class="today-label">(今天)</span>
+              </span>
+              <el-icon class="date-arrow" :class="{ 'is-open': datePickerVisible }">
+                <ArrowDown />
+              </el-icon>
+            </div>
+            
+            <!-- 日期选择网格 -->
+            <div v-if="datePickerVisible" class="date-grid">
+              <div
+                v-for="date in availableDates"
+                :key="date.getTime()"
+                class="date-item"
+                :class="{ active: formatDate(date) === formatDate(appointmentForm.date) }"
+                @click="selectDate(date)"
+              >
+                <span class="date-weekday">{{ isToday(date) ? '(今天)' : `(${getWeekday(date)})` }}</span>
+                <span class="date-value">{{ formatDate(date) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 备注信息 -->
+          <div class="form-item">
+            <label class="form-label">备注信息</label>
+            <el-input
+              v-model="appointmentForm.remarks"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入备注信息"
+              class="form-input"
+              maxlength="200"
+              show-word-limit
+            />
+          </div>
+        </div>
+
+        <!-- 提交按钮 -->
+        <div class="appointment-actions">
+          <el-button type="primary" size="large" class="submit-btn" @click="submitAppointment">
+            预约看房
+          </el-button>
+        </div>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
@@ -428,6 +692,183 @@ const goBack = () => {
 
   .facility-grid {
     grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+}
+
+/* 预约看房弹窗样式 */
+.appointment-drawer :deep(.el-drawer__body) {
+  padding: 0;
+}
+
+.appointment-modal {
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.appointment-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gray-1);
+  margin: 0 0 24px 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.appointment-form {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 14px;
+  color: var(--gray-2);
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+}
+
+/* 日期选择器样式 */
+.date-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: var(--gray-bg-light);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  border: 1px solid var(--border-color-light);
+}
+
+.date-selector:hover {
+  border-color: var(--border-color);
+  background-color: var(--color-white);
+}
+
+.date-display {
+  font-size: 14px;
+  color: var(--gray-1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.today-label {
+  color: var(--brand-primary);
+  font-size: 12px;
+}
+
+.date-arrow {
+  font-size: 16px;
+  color: var(--gray-3);
+  transition: transform 0.3s;
+}
+
+.date-arrow.is-open {
+  transform: rotate(180deg);
+}
+
+/* 日期网格 */
+.date-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  background-color: var(--gray-bg-light);
+  border-radius: var(--border-radius-sm);
+}
+
+.date-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color-light);
+  background-color: var(--color-white);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.date-item:hover {
+  border-color: var(--brand-primary);
+  background-color: var(--brand-primary-soft);
+}
+
+.date-item.active {
+  border-color: var(--brand-primary);
+  background-color: var(--brand-primary);
+  color: var(--color-white);
+}
+
+.date-item.active .date-weekday,
+.date-item.active .date-value {
+  color: var(--color-white);
+}
+
+.date-weekday {
+  font-size: 11px;
+  color: var(--gray-3);
+}
+
+.date-value {
+  font-size: 12px;
+  color: var(--gray-1);
+  font-weight: 500;
+}
+
+/* 提交按钮 */
+.appointment-actions {
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color-light);
+  margin-top: auto;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* 响应式调整 */
+@media (max-width: 767px) {
+  .appointment-modal {
+    padding: 20px 16px;
+  }
+
+  .appointment-title {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  .date-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .form-item {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .date-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 </style>
