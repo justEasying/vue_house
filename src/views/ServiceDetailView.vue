@@ -1,8 +1,14 @@
 <script setup>
 import { computed, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { useOrderStore } from '@/stores/order'
 import { serviceDetail } from '../data/mockData'
 
+const router = useRouter()
+const userStore = useUserStore()
+const orderStore = useOrderStore()
 const detail = serviceDetail
 const selectedPackageId = ref(detail.packages[1]?.id ?? detail.packages[0].id)
 const activeTab = ref('intro')
@@ -52,10 +58,50 @@ const handlePackageSelect = (id) => {
 }
 
 const handleSubmit = async () => {
+  // 检查是否登录
+  if (!userStore.isLoggedIn) {
+    ElMessage.warning('请先登录后再预约服务')
+    router.push('/login')
+    return
+  }
+
   if (!bookingFormRef.value) return
   const valid = await bookingFormRef.value.validate().catch(() => false)
   if (!valid) return
-  ElMessage.success('预约提交成功，客服将尽快与您确认。')
+
+  // 获取选中的套餐信息
+  const selectedPkg = detail.packages.find(pkg => pkg.id === bookingForm.packageId)
+  
+  // 生成订单数据
+  const orderData = {
+    serviceId: detail.id,
+    serviceTitle: detail.title,
+    serviceCover: detail.cover,
+    packageId: bookingForm.packageId,
+    packageName: selectedPkg.name,
+    packagePrice: selectedPkg.price,
+    date: bookingForm.date,
+    time: bookingForm.time,
+    address: bookingForm.address,
+    contact: bookingForm.contact,
+    phone: bookingForm.phone,
+    remark: bookingForm.remark,
+    userId: userStore.userInfo?.uid || '',
+    userName: userStore.userInfo?.name || ''
+  }
+
+  // 保存订单
+  const order = orderStore.addOrder(orderData)
+
+  ElMessage.success('预约提交成功，订单号：' + order.id)
+
+  // 重置表单
+  bookingFormRef.value.resetFields()
+
+  // 延迟跳转到订单页面
+  setTimeout(() => {
+    router.push('/orders')
+  }, 1500)
 }
 </script>
 

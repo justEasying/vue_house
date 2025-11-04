@@ -134,6 +134,15 @@ const router = createRouter({
       }
     },
     {
+      path: '/orders',
+      name: 'orders',
+      component: () => import('../views/OrderListView.vue'),
+      meta: {
+        title: '服务订单',
+        activeMenu: '/my'
+      }
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue'),

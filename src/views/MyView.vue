@@ -33,7 +33,7 @@ const entryList = [
   { title: '我的约看', icon: 'Calendar', desc: '预约看房管理', link: '/my/appointment' },
   { title: '我的拼租', icon: 'Connection', desc: '拼租信息管理', link: '/my/share' },
   { title: '个人资料', icon: 'User', desc: '修改头像昵称', link: '/my/profile' },
-  { title: '服务订单', icon: 'Tickets', desc: '保洁搬家订单', link: '/service' }
+  { title: '服务订单', icon: 'Tickets', desc: '保洁搬家订单', link: '/orders' }
 ]
 
 const goTo = (link) => {

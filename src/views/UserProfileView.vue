@@ -118,6 +118,10 @@ const handleReset = () => {
   
   ElMessage.info('已重置表单')
 }
+
+const goBack= () => {
+  router.push('/my')
+}
 </script>
 
 <template>
@@ -189,7 +193,7 @@ const handleReset = () => {
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="large" @click="handleSubmit">保存修改</el-button>
-          <el-button size="large" plain @click="handleReset">取消</el-button>
+          <el-button size="large" plain @click="goBack">取消</el-button>
         </el-form-item>
       </el-form>
     </div>
