@@ -1,17 +1,45 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useUserStore } from '@/stores/user'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
+const userStore = useUserStore()
 const profileFormRef = ref()
+
+// 初始化表单数据
 const profileForm = reactive({
-  avatar: 'https://picsum.photos/120?random=5',
-  nickname: '张租客',
-  gender: 'male',
-  birthday: '1995-08-16',
-  phone: '13812345678',
-  email: 'hello@vueyoushe.com',
-  signature: '热爱分享生活的北漂设计师，喜欢音乐与烘焙。',
+  avatar: '',
+  nickname: '',
+  gender: 'secret',
+  birthday: '',
+  phone: '',
+  email: '',
+  signature: '',
   password: ''
+})
+
+// 页面加载时从 store 读取用户信息
+onMounted(() => {
+  if (!userStore.isLoggedIn) {
+    ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
+  
+  // 从 store 中读取用户信息并填充表单
+  const user = userStore.userInfo
+  if (user) {
+    profileForm.avatar = user.avatar || 'https://picsum.photos/120?random=5'
+    profileForm.nickname = user.name || user.username || ''
+    profileForm.gender = user.gender || 'secret'
+    profileForm.birthday = user.birthday || ''
+    profileForm.phone = user.phone || ''
+    profileForm.email = user.email || ''
+    profileForm.signature = user.signature || ''
+    profileForm.password = ''
+  }
 })
 
 const rules = {
@@ -38,11 +66,57 @@ const handleAvatarChange = (uploadFile) => {
 const handleSubmit = async () => {
   const valid = await profileFormRef.value?.validate().catch(() => false)
   if (!valid) return
+  
+  // 准备更新的数据
+  const updates = {
+    avatar: profileForm.avatar,
+    name: profileForm.nickname,
+    username: profileForm.nickname,
+    gender: profileForm.gender,
+    birthday: profileForm.birthday,
+    phone: profileForm.phone,
+    email: profileForm.email,
+    signature: profileForm.signature
+  }
+  
+  // 如果填写了新密码，添加到更新数据中
+  if (profileForm.password) {
+    updates.password = profileForm.password
+    console.log('密码已更新（实际项目中应该调用 API 修改密码）')
+  }
+  
+  // 更新 store 中的用户信息（同时会更新 localStorage）
+  userStore.updateUserInfo(updates)
+  
+  // 清空密码字段
+  profileForm.password = ''
+  
   ElMessage.success('资料已更新')
+  
+  // 可选：延迟跳转回个人中心
+  setTimeout(() => {
+    router.push('/my')
+  }, 1000)
 }
 
 const handleReset = () => {
-  profileFormRef.value?.resetFields()
+  // 重新从 store 加载用户信息
+  const user = userStore.userInfo
+  if (user) {
+    profileForm.avatar = user.avatar || 'https://picsum.photos/120?random=5'
+    profileForm.nickname = user.name || user.username || ''
+    profileForm.gender = user.gender || 'secret'
+    profileForm.birthday = user.birthday || ''
+    profileForm.phone = user.phone || ''
+    profileForm.email = user.email || ''
+    profileForm.signature = user.signature || ''
+    profileForm.password = ''
+  }
+  
+  // 清除表单验证状态
+  profileFormRef.value?.clearValidate()
+  
+  ElMessage.info('已重置表单')
 }
 </script>
 

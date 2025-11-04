@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { useUserStore } from '@/stores/user'
 import {
   ArrowLeft,
   CircleCheck,
@@ -13,6 +14,7 @@ import {
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 // 登录/注册模式切换
 const isLogin = ref(true)
@@ -303,9 +305,30 @@ const handleConfirm = async () => {
     verificationCode: loginForm.value.verificationCode
   })
 
+  // 模拟用户数据（实际项目中从API返回）
+  const userData = {
+    name: '用户' + loginForm.value.phoneNumber.slice(-4),
+    uid: 'UID' + Date.now().toString().slice(-6),
+    phone: loginForm.value.phoneNumber,
+    avatar: 'https://picsum.photos/120?random=' + Math.floor(Math.random() * 100),
+    tags: ['新用户'],
+    stats: [
+      { label: '想看房源', value: 0 },
+      { label: '约看记录', value: 0 },
+      { label: '服务预约', value: 0 },
+      { label: '社区活动', value: 0 }
+    ]
+  }
+  
+  // 模拟 token（实际项目中从API返回）
+  const token = 'token_' + Date.now()
+
+  // 存储用户信息到 store 和 localStorage
+  userStore.login(userData, token)
+
   ElMessage.success('登录成功')
 
-  // 模拟登录成功，跳转到我的页面
+  // 跳转到我的页面
   setTimeout(() => {
     router.push('/my')
   }, 500)
@@ -328,9 +351,30 @@ const handleAccountLogin = async () => {
     rememberMe: rememberMe.value
   })
 
+  // 模拟用户数据（实际项目中从API返回）
+  const userData = {
+    name: loginForm.value.username,
+    uid: 'UID' + Date.now().toString().slice(-6),
+    username: loginForm.value.username,
+    avatar: 'https://picsum.photos/120?random=' + Math.floor(Math.random() * 100),
+    tags: ['优设会员'],
+    stats: [
+      { label: '想看房源', value: 5 },
+      { label: '约看记录', value: 2 },
+      { label: '服务预约', value: 3 },
+      { label: '社区活动', value: 1 }
+    ]
+  }
+  
+  // 模拟 token（实际项目中从API返回）
+  const token = 'token_' + Date.now()
+
+  // 存储用户信息到 store 和 localStorage
+  userStore.login(userData, token)
+
   ElMessage.success('登录成功')
 
-  // 模拟登录成功，跳转到我的页面
+  // 跳转到我的页面
   setTimeout(() => {
     router.push('/my')
   }, 500)
@@ -354,13 +398,34 @@ const handleRegister = async () => {
   // 这里可以调用API注册
   console.log('注册信息:', registerForm.value)
 
-  ElMessage.success('注册成功，请登录')
+  // 模拟用户数据（实际项目中从API返回）
+  const userData = {
+    name: registerForm.value.username,
+    uid: 'UID' + Date.now().toString().slice(-6),
+    username: registerForm.value.username,
+    email: registerForm.value.email,
+    phone: registerForm.value.phoneNumber,
+    avatar: 'https://picsum.photos/120?random=' + Math.floor(Math.random() * 100),
+    tags: ['新用户'],
+    stats: [
+      { label: '想看房源', value: 0 },
+      { label: '约看记录', value: 0 },
+      { label: '服务预约', value: 0 },
+      { label: '社区活动', value: 0 }
+    ]
+  }
+  
+  // 模拟 token（实际项目中从API返回）
+  const token = 'token_' + Date.now()
 
-  // 注册成功后切换到登录模式
+  // 注册成功后直接登录
+  userStore.register(userData, token)
+
+  ElMessage.success('注册成功')
+
+  // 跳转到我的页面
   setTimeout(() => {
-    switchMode(true)
-    loginType.value = 'account'
-    loginForm.value.username = registerForm.value.username
+    router.push('/my')
   }, 1000)
 }
 
