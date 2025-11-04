@@ -13,6 +13,7 @@ const viewportWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 19
 const drawerVisible = ref(false)
 const city = ref('北京')
 const searchKeyword = ref('')
+const isLoading = ref(false)
 
 // 热门城市（默认显示）
 const hotCities = [
@@ -123,6 +124,18 @@ watch(
     }
   }
 )
+
+// 监听路由变化，更新加载状态
+router.beforeEach((to, from, next) => {
+  isLoading.value = true
+  next()
+})
+
+router.afterEach(() => {
+  setTimeout(() => {
+    isLoading.value = false
+  }, 100) // 短暂延迟，确保用户能看到加载状态
+})
 
 const handleMenuSelect = (path) => {
   if (path === route.path) return
@@ -338,14 +351,13 @@ onMounted(() => {
         </el-header>
 
         <el-main class="app-main">
-          <el-scrollbar>
-            <router-view v-slot="{ Component }">
-              <transition name="fade-slide" mode="out-in">
-                <component :is="Component" />
-              </transition>
-            </router-view>
-          </el-scrollbar>
-        </el-main>
+            <el-scrollbar>
+              <!-- 简化路由视图，移除可能导致问题的过渡 -->
+              <router-view />
+              <!-- 添加路由加载状态指示器 -->
+              <el-loading v-if="isLoading" fullscreen text="页面加载中..." />
+            </el-scrollbar>
+          </el-main>
       </el-container>
 
       <el-drawer
