@@ -323,6 +323,9 @@ onMounted(() => {
                     <el-dropdown-item @click="router.push('/my/want')">
                       我的想看
                     </el-dropdown-item>
+                    <el-dropdown-item divided @click="router.push('/about')">
+                      关于我们
+                    </el-dropdown-item>
                     <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
