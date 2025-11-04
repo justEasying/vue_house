@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import allCitiesData from './data/cities.json'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const route = useRoute()

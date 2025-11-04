@@ -1103,6 +1103,20 @@ const handlePrivacy = () => {
 .get-code-btn-inline {
   padding: 0 var(--spacing-sm);
   font-size: var(--font-size-sm);
+  background: transparent !important;
+  color: var(--brand-primary) !important;
+}
+
+.get-code-btn-inline:hover {
+  background: transparent !important;
+  opacity: 0.8;
+}
+
+.get-code-btn-inline:disabled,
+.get-code-btn-inline.is-disabled {
+  background: transparent !important;
+  color: var(--brand-primary) !important;
+  opacity: 0.6;
 }
 
 .countdown {
