@@ -53,6 +53,10 @@ const handleLogin = () => {
   router.push('/login')
 }
 
+// 跳转到注册页
+const handleRegister = () => {
+  router.push('/login')
+}
 // 退出登录
 const handleLogout = async () => {
   try {
@@ -111,14 +115,7 @@ const handleLogout = async () => {
             </div>
           </div>
         </div>
-        <div class="user-info__actions">
-          <el-button type="primary" plain size="large" @click="goTo('/my/profile')">
-            编辑资料
-          </el-button>
-          <el-button type="danger" plain size="large" @click="handleLogout">
-            退出登录
-          </el-button>
-        </div>
+        
       </div>
       <div class="user-stats">
         <div v-for="item in userInfo.stats" :key="item.label" class="stat-item">
@@ -159,7 +156,7 @@ const handleLogout = async () => {
         <p>登录后即可查看收藏房源、预约记录、拼租信息等个性化内容。</p>
         <div class="login-card__actions">
           <el-button type="primary" size="large" @click="handleLogin">立即登录</el-button>
-          <el-button size="large" plain>注册账号</el-button>
+          <el-button size="large" plain @click="handleRegister">注册账号</el-button>
         </div>
       </div>
     </div>

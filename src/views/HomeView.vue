@@ -53,7 +53,7 @@ const goToProperty = (id) => {
     try {
       const propertyId = String(id).trim()
       if (propertyId) {
-        navigateTo(`/property/${propertyId}`)
+        router.push(`/property/${propertyId}`)
       }
     } catch (error) {
       console.error('房源详情跳转失败:', error)
@@ -64,6 +64,13 @@ const goToProperty = (id) => {
 
 const handleShortcutClick = (link) => {
   router.push(link)
+}
+
+// Banner 跳转处理
+const handleBannerClick = (link) => {
+  if (link) {
+    router.push(link)
+  }
 }
 
 // 立即找房 - 跳转到想看页面
