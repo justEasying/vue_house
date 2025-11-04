@@ -512,8 +512,8 @@ const handlePrivacy = () => {
           <!-- 登录方式切换 -->
           <div class="login-type-tabs">
             <el-radio-group v-model="loginType" size="small">
-              <el-radio-button label="phone">手机号登录</el-radio-button>
-              <el-radio-button label="account">账号登录</el-radio-button>
+              <el-radio-button value="phone">手机号登录</el-radio-button>
+              <el-radio-button value="account">账号登录</el-radio-button>
             </el-radio-group>
           </div>
 

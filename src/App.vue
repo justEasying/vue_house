@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import allCitiesData from './data/cities.json'
 import { useUserStore } from '@/stores/user'
 
@@ -106,14 +106,7 @@ const handleCitySearch = (query) => {
   cityOptions.value = filtered.slice(0, 50)
 }
 
-onMounted(() => {
-  window.addEventListener('resize', handleResize)
-  handleResize()
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
-})
+// 移动到下面统一的 onMounted 中
 
 watch(
   () => route.path,
@@ -196,6 +189,10 @@ onMounted(() => {
   handleResize()
   // 从 localStorage 恢复用户信息
   userStore.restoreFromStorage()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
 })
 </script>
 
@@ -302,12 +299,12 @@ onMounted(() => {
             </el-popover>
             <el-divider direction="vertical" />
             <div class="user-area">
-              <el-avatar
-                class="user-avatar"
-                size="medium"
-                :src="currentUser.avatar"
-                @click="goToMy"
-              />
+            <el-avatar
+              class="user-avatar"
+              :size="40"
+              :src="currentUser.avatar"
+              @click="goToMy"
+            />
               <el-dropdown v-if="userStore.isLoggedIn">
                 <span class="user-meta-wrapper">
                   <span class="user-meta">
@@ -338,13 +335,13 @@ onMounted(() => {
         </el-header>
 
         <el-main class="app-main">
-          <el-scrollbar>
-            <router-view v-slot="{ Component }">
-              <transition name="fade-slide" mode="out-in">
+          <router-view v-slot="{ Component, route }">
+            <transition name="fade-slide" mode="out-in">
+              <div :key="route.fullPath" class="route-view-wrapper">
                 <component :is="Component" />
-              </transition>
-            </router-view>
-          </el-scrollbar>
+              </div>
+            </transition>
+          </router-view>
         </el-main>
       </el-container>
 
@@ -622,6 +619,12 @@ onMounted(() => {
   padding: var(--spacing-2xl);
   flex: 1;
   min-height: 0;
+  overflow-y: auto;
+}
+
+.route-view-wrapper {
+  width: 100%;
+  min-height: 100%;
 }
 
 .ghost-btn {

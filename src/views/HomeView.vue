@@ -1,6 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { ArrowRight, Location } from '@element-plus/icons-vue'
 import {
   bannerSlides,
   featuredProperties,
@@ -52,6 +54,17 @@ const goToProperty = (id) => {
 const handleShortcutClick = (link) => {
   router.push(link)
 }
+
+// 立即找房 - 跳转到想看页面
+const goToList = () => {
+  router.push('/want')
+}
+
+// 我要出租 - 暂未实现
+const showRentalForm = () => {
+  ElMessage.info('我要出租功能开发中，敬请期待')
+}
+
 // 服务保障数据
 const services = ref([
   {
@@ -100,10 +113,10 @@ const shortcutsChunks = computed(() => {
         </div>
       </el-col>
       <el-col :span="16"> 
-        <el-carousel height="320px" trigger="click" indicator-position="outside">
+        <el-carousel v-if="bannerSlides.length > 0" height="320px" trigger="click" indicator-position="outside">
           <el-carousel-item
             v-for="item in bannerSlides"
-            :key="item.id"
+            :key="`banner-top-${item.id}`"
             @click="router.push(item.link)"
           >
             <div
@@ -170,10 +183,10 @@ const shortcutsChunks = computed(() => {
             <span class="section-card__title">发现</span>
             <el-text type="info">社区活动与福利 · 发现更多生活惊喜</el-text>
           </div>
-          <el-carousel height="320px" trigger="click" indicator-position="outside">
+          <el-carousel v-if="bannerSlides.length > 0" height="320px" trigger="click" indicator-position="outside">
           <el-carousel-item
             v-for="item in bannerSlides"
-            :key="item.id"
+            :key="`banner-discover-${item.id}`"
             @click="router.push(item.link)"
           >
             <div

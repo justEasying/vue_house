@@ -166,9 +166,9 @@ const goBack= () => {
         </el-form-item>
         <el-form-item label="性别">
           <el-radio-group v-model="profileForm.gender">
-            <el-radio-button label="male">男</el-radio-button>
-            <el-radio-button label="female">女</el-radio-button>
-            <el-radio-button label="secret">保密</el-radio-button>
+            <el-radio-button value="male">男</el-radio-button>
+            <el-radio-button value="female">女</el-radio-button>
+            <el-radio-button value="secret">保密</el-radio-button>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="生日">
@@ -186,7 +186,7 @@ const goBack= () => {
           <el-input v-model="profileForm.email" />
         </el-form-item>
         <el-form-item label="个性签名">
-          <el-input v-model="profileForm.signature" type="textarea" rows="3" />
+          <el-input v-model="profileForm.signature" type="textarea" :rows="3" />
         </el-form-item>
         <el-form-item label="修改密码" prop="password">
           <el-input v-model="profileForm.password" type="password" show-password />
