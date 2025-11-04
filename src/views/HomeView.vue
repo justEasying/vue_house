@@ -507,6 +507,45 @@ const shortcutsChunks = computed(() => {
   word-break: break-word;
 }
 
+/* 确保表格中的所有按钮可见 */
+.table-wrapper :deep(.el-button--text),
+.table-wrapper :deep(.el-button.is-link) {
+  background: transparent !important;
+}
+
+.table-wrapper :deep(.el-button--text.el-button--primary),
+.table-wrapper :deep(.el-button.is-link.el-button--primary) {
+  color: var(--brand-primary) !important;
+  border: none !important;
+}
+
+.table-wrapper :deep(.el-button--text.el-button--success) {
+  color: var(--brand-success) !important;
+}
+
+.table-wrapper :deep(.el-button--text:hover),
+.table-wrapper :deep(.el-button.is-link:hover) {
+  background: var(--brand-primary-soft) !important;
+}
+
+.table-wrapper :deep(.el-button--text.el-button--success:hover) {
+  background: var(--brand-success-soft) !important;
+}
+
+/* 标题按钮特殊处理 */
+.table-title :deep(.el-button) {
+  color: var(--brand-primary) !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.table-title :deep(.el-button:hover) {
+  color: var(--brand-primary-light) !important;
+  background: transparent !important;
+  text-decoration: underline;
+}
+
 @media (max-width: 1199px) {
   .banner__content {
     padding: 36px;
