@@ -13,6 +13,7 @@ const viewportWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 19
 const drawerVisible = ref(false)
 const city = ref('北京')
 const searchKeyword = ref('')
+const isLoading = ref(false)
 
 // 热门城市（默认显示）
 const hotCities = [
@@ -116,6 +117,18 @@ watch(
     }
   }
 )
+
+// 监听路由变化，更新加载状态
+router.beforeEach((to, from, next) => {
+  isLoading.value = true
+  next()
+})
+
+router.afterEach(() => {
+  setTimeout(() => {
+    isLoading.value = false
+  }, 100) // 短暂延迟，确保用户能看到加载状态
+})
 
 const handleMenuSelect = (path) => {
   if (path === route.path) return

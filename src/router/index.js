@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -167,12 +168,37 @@ const router = createRouter({
   ]
 })
 
+// 全局导航守卫，用于设置页面标题
 router.afterEach((to) => {
   if (to.meta?.title) {
-    document.title = `${to.meta.title} - Vue优设`
+    document.title = `${to.meta.title} - 房产租赁平台`
   } else {
-    document.title = 'Vue优设'
+    document.title = '房产租赁平台'
   }
+})
+
+// 全局导航错误处理
+router.onError((error) => {
+  console.error('路由错误:', error)
+  ElMessage.error('页面跳转发生错误，请刷新重试')
+})
+
+// 全局前置守卫，添加调试信息
+router.beforeEach((to, from, next) => {
+  console.log('从页面跳转:', from.path, '到页面:', to.path)
+  next()
+})
+
+// 全局导航错误处理
+router.onError((error) => {
+  console.error('路由错误:', error)
+  ElMessage.error('页面跳转发生错误，请刷新重试')
+})
+
+// 全局前置守卫，添加调试信息
+router.beforeEach((to, from, next) => {
+  console.log('从页面跳转:', from.path, '到页面:', to.path)
+  next()
 })
 
 export default router

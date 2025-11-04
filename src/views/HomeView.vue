@@ -48,7 +48,18 @@ const handleSortChange = ({ prop, order }) => {
 }
 
 const goToProperty = (id) => {
-  router.push(`/property/${id}`)
+  // 确保id是有效的
+  if (id !== undefined && id !== null) {
+    try {
+      const propertyId = String(id).trim()
+      if (propertyId) {
+        navigateTo(`/property/${propertyId}`)
+      }
+    } catch (error) {
+      console.error('房源详情跳转失败:', error)
+      ElMessage.error('页面跳转失败，请重试')
+    }
+  }
 }
 
 const handleShortcutClick = (link) => {
@@ -106,7 +117,7 @@ const shortcutsChunks = computed(() => {
             <h1>找到您的理想住所</h1>
             <p>精选优质房源，智能匹配居住需求，享受便捷租赁体验</p>
             <div class="banner-buttons">
-              <el-button type="primary" @click="goToList" style="background-color: #fff; color: #fff; border-color: #09f;">立即找房</el-button>
+              <el-button type="primary" @click="goToList" style="background-color: #09f; color: #fff; border-color: #09f;">立即找房</el-button>
               <el-button type="default" @click="showRentalForm" style="background-color: transparent; color: #fff; border-color: #fff;">我要出租</el-button>
             </div>
           </div>
@@ -119,14 +130,11 @@ const shortcutsChunks = computed(() => {
             :key="`banner-top-${item.id}`"
             @click="router.push(item.link)"
           >
-            <div
-              class="banner"
-              :style="{ backgroundImage: `url(${item.cover})` }"
-            >
+            <div class="banner" :style="{ backgroundImage: `url(${item.cover})` }" @click.stop="handleBannerClick(item.link)">
               <div class="banner__content">
                 <h3>{{ item.title }}</h3>
                 <p>{{ item.description }}</p>
-                <el-button type="primary" size="large">立即查看</el-button>
+                <el-button type="primary" size="large" @click.stop="handleBannerClick(item.link)">立即查看</el-button>
               </div>
             </div>
           </el-carousel-item>
@@ -137,7 +145,7 @@ const shortcutsChunks = computed(() => {
     <div class="section-card">
       <div class="section-card__header">
         <span class="section-card__title">精选房源推荐</span>
-        <el-button type="primary" text @click="router.push('/want')">
+        <el-button type="primary" text @click="goToList">
           查看更多房源
           <el-icon class="ml-4"><ArrowRight /></el-icon>
         </el-button>
@@ -189,14 +197,11 @@ const shortcutsChunks = computed(() => {
             :key="`banner-discover-${item.id}`"
             @click="router.push(item.link)"
           >
-            <div
-              class="banner"
-              :style="{ backgroundImage: `url(${item.cover})` }"
-            >
+            <div class="banner" :style="{ backgroundImage: `url(${item.cover})` }" @click.stop="handleBannerClick(item.link)">
               <div class="banner__content">
                 <h3>{{ item.title }}</h3>
                 <p>{{ item.description }}</p>
-                <el-button type="primary" size="large">立即查看</el-button>
+                <el-button type="primary" size="large" @click.stop="handleBannerClick(item.link)">立即查看</el-button>
               </div>
             </div>
           </el-carousel-item>
