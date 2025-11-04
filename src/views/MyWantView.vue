@@ -1,9 +1,35 @@
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { myFavorites } from '../data/mockData'
+import { wantList } from '../utils/storage'
 
 const router = useRouter()
+
+// 使用响应式数据，从 localStorage 初始化
+const listData = ref([])
+
+// 初始化数据
+const initData = () => {
+  // 检查 localStorage 中是否已经存在数据（即使为空数组也算存在）
+  const storageKey = 'my_want_list'
+  const hasData = localStorage.getItem(storageKey) !== null
+  
+  if (!hasData) {
+    // 只在完全首次访问时初始化 mock 数据
+    setStorage(storageKey, myFavorites)
+    listData.value = [...myFavorites]
+  } else {
+    // 如果 localStorage 中已有数据（包括空数组），直接使用
+    const stored = wantList.getList()
+    listData.value = stored
+  }
+}
+
+onMounted(() => {
+  initData()
+})
 
 const filters = reactive({
   keyword: '',
@@ -19,10 +45,11 @@ const pageState = reactive({
 const selectedIds = ref([])
 
 const filteredData = computed(() => {
-  let result = [...myFavorites]
+  let result = [...listData.value]
   if (filters.keyword) {
     result = result.filter((item) =>
-      item.title.toLowerCase().includes(filters.keyword.toLowerCase())
+      item.title.toLowerCase().includes(filters.keyword.toLowerCase()) ||
+      item.address?.toLowerCase().includes(filters.keyword.toLowerCase())
     )
   }
   if (filters.layout) {
@@ -44,13 +71,81 @@ const handleSelectionChange = (selection) => {
   selectedIds.value = selection.map((item) => item.id)
 }
 
-const handleBatchRemove = () => {
-  if (!selectedIds.value.length) return
-  selectedIds.value = []
+// 批量删除
+const handleBatchRemove = async () => {
+  if (!selectedIds.value.length) {
+    ElMessage.warning('请先选择要删除的房源')
+    return
+  }
+  
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除选中的 ${selectedIds.value.length} 个房源吗？`,
+      '批量删除确认',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    const result = wantList.removeBatch(selectedIds.value)
+    if (result.success) {
+      ElMessage.success(`成功删除 ${result.count} 个房源`)
+      selectedIds.value = []
+      initData() // 重新加载数据
+      // 如果当前页没有数据了，回到上一页
+      if (paginatedData.value.length === 0 && pageState.currentPage > 1) {
+        pageState.currentPage--
+      }
+    }
+  } catch {
+    // 用户取消
+  }
+}
+
+// 单个删除
+const handleRemove = async (id, title) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要从想看列表中移除"${title}"吗？`,
+      '取消收藏确认',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    const result = wantList.remove(id)
+    if (result.success) {
+      ElMessage.success('已取消收藏')
+      initData() // 重新加载数据
+      // 如果当前页没有数据了，回到上一页
+      if (paginatedData.value.length === 0 && pageState.currentPage > 1) {
+        pageState.currentPage--
+      }
+    } else {
+      ElMessage.error(result.message || '删除失败')
+    }
+  } catch {
+    // 用户取消
+  }
 }
 
 const handleView = (id) => {
   router.push(`/property/${id}`)
+}
+
+// 辅助函数：设置存储（用于初始化）
+const setStorage = (key, data) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data))
+    return true
+  } catch (e) {
+    console.error('保存存储数据失败:', e)
+    return false
+  }
 }
 </script>
 
@@ -125,7 +220,9 @@ const handleView = (id) => {
               <el-button type="primary" text size="small" @click="handleView(scope.row.id)">
                 查看详情
               </el-button>
-              <el-button type="danger" text size="small">取消收藏</el-button>
+              <el-button type="danger" text size="small" @click="handleRemove(scope.row.id, scope.row.title)">
+                取消收藏
+              </el-button>
             </el-space>
           </template>
         </el-table-column>
