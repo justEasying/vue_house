@@ -1,32 +1,69 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useOrderStore } from '@/stores/order'
 import { ElMessageBox, ElMessage } from 'element-plus'
+import { wantList, appointmentList } from '@/utils/storage'
 
 const router = useRouter()
 const userStore = useUserStore()
+const orderStore = useOrderStore()
 
-// 从 store 获取登录状态和用户信息
-const isLogin = computed(() => userStore.isLoggedIn)
-const userInfo = computed(() => userStore.userInfo || {
-  name: '游客',
-  uid: '未登录',
-  avatar: 'https://picsum.photos/120?random=6',
-  tags: [],
-  stats: [
-    { label: '想看房源', value: 0 },
-    { label: '约看记录', value: 0 },
-    { label: '服务预约', value: 0 },
-    { label: '社区活动', value: 0 }
+// 实时统计数据
+const stats = computed(() => {
+  // 从 localStorage 获取想看房源数量
+  const wantCount = wantList.getList().length
+  
+  // 从 localStorage 获取约看记录数量
+  const appointmentCount = appointmentList.getList().length
+  
+  // 从 order store 获取服务订单数量（排除已取消的）
+  const serviceCount = orderStore.orders.filter(order => 
+    order.status !== 'cancelled'
+  ).length
+  
+  // 社区活动暂时固定为 0（未实现）
+  const activityCount = 0
+  
+  return [
+    { label: '想看房源', value: wantCount },
+    { label: '约看记录', value: appointmentCount },
+    { label: '服务预约', value: serviceCount },
+    { label: '社区活动', value: activityCount }
   ]
 })
 
+// 从 store 获取登录状态和用户信息
+const isLogin = computed(() => userStore.isLoggedIn)
+const userInfo = computed(() => {
+  const defaultInfo = {
+    name: '游客',
+    uid: '未登录',
+    avatar: 'https://picsum.photos/120?random=6',
+    tags: []
+  }
+  
+  return userStore.userInfo || defaultInfo
+})
 
+// 强制刷新标记（用于触发视图更新）
+const refreshKey = ref(0)
 
-// 页面加载时，从 localStorage 恢复用户信息
+// 页面加载时，从 localStorage 恢复用户信息和订单数据
 onMounted(() => {
   userStore.restoreFromStorage()
+  orderStore.restoreFromStorage()
+  
+  // 每隔一段时间刷新一次统计数据（可选）
+  const refreshInterval = setInterval(() => {
+    refreshKey.value++
+  }, 5000) // 每5秒刷新一次
+  
+  // 组件卸载时清除定时器
+  onBeforeUnmount(() => {
+    clearInterval(refreshInterval)
+  })
 })
 
 const entryList = [
@@ -117,8 +154,8 @@ const handleLogout = async () => {
         </div>
         
       </div>
-      <div class="user-stats">
-        <div v-for="item in userInfo.stats" :key="item.label" class="stat-item">
+      <div class="user-stats" :key="refreshKey">
+        <div v-for="item in stats" :key="item.label" class="stat-item">
           <strong>{{ item.value }}</strong>
           <span>{{ item.label }}</span>
         </div>

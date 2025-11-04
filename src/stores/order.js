@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 export const useOrderStore = defineStore(
   'order',
@@ -72,8 +72,8 @@ export const useOrderStore = defineStore(
       localStorage.removeItem('orders')
     }
 
-    // 获取订单统计
-    const getOrderStats = () => {
+    // 获取订单统计（使用 computed 实现响应式）
+    const getOrderStats = computed(() => {
       return {
         total: orders.value.length,
         pending: orders.value.filter(o => o.status === 'pending').length,
@@ -81,7 +81,7 @@ export const useOrderStore = defineStore(
         completed: orders.value.filter(o => o.status === 'completed').length,
         cancelled: orders.value.filter(o => o.status === 'cancelled').length
       }
-    }
+    })
 
     return {
       orders,
@@ -96,14 +96,9 @@ export const useOrderStore = defineStore(
   },
   {
     persist: {
-      enabled: true,
-      strategies: [
-        {
-          key: 'orders',
-          storage: localStorage,
-          paths: ['orders']
-        }
-      ]
+      key: 'orders',
+      storage: localStorage,
+      paths: ['orders']
     }
   }
 )

@@ -102,8 +102,8 @@ const handleViewDetail = (order) => {
   console.log('订单详情:', order)
 }
 
-// 订单统计
-const stats = computed(() => orderStore.getOrderStats())
+// 订单统计（getOrderStats 已经是 computed 属性）
+const stats = computed(() => orderStore.getOrderStats)
 
 // 过滤后的订单列表
 const orderList = computed(() => orderStore.orders)
