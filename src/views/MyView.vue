@@ -19,7 +19,9 @@ const stats = computed(() => {
   const appointmentCount = appointmentList.getList().length
   
   // 从 order store 获取服务订单数量（排除已取消的）
-  const serviceCount = orderStore.orders.filter(order => 
+  // 添加防御性检查，确保 orders 是数组
+  const orders = Array.isArray(orderStore.orders) ? orderStore.orders : []
+  const serviceCount = orders.filter(order => 
     order.status !== 'cancelled'
   ).length
   
@@ -50,10 +52,10 @@ const userInfo = computed(() => {
 // 强制刷新标记（用于触发视图更新）
 const refreshKey = ref(0)
 
-// 页面加载时，从 localStorage 恢复用户信息和订单数据
+// 页面加载时，从 localStorage 恢复用户信息
 onMounted(() => {
   userStore.restoreFromStorage()
-  orderStore.restoreFromStorage()
+  // orderStore 数据会通过 Pinia persist 插件自动恢复
   
   // 每隔一段时间刷新一次统计数据（可选）
   const refreshInterval = setInterval(() => {

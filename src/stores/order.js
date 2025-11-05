@@ -18,9 +18,7 @@ export const useOrderStore = defineStore(
       }
 
       orders.value.unshift(order) // 最新订单放在前面
-
-      // 同时存储到 localStorage（备用）
-      localStorage.setItem('orders', JSON.stringify(orders.value))
+      // Pinia persist 插件会自动保存到 localStorage
 
       return order
     }
@@ -31,9 +29,7 @@ export const useOrderStore = defineStore(
       if (order) {
         order.status = status
         order.updatedAt = new Date().toISOString()
-
-        // 更新 localStorage
-        localStorage.setItem('orders', JSON.stringify(orders.value))
+        // Pinia persist 插件会自动保存到 localStorage
       }
     }
 
@@ -47,29 +43,14 @@ export const useOrderStore = defineStore(
       const index = orders.value.findIndex(o => o.id === orderId)
       if (index !== -1) {
         orders.value.splice(index, 1)
-
-        // 更新 localStorage
-        localStorage.setItem('orders', JSON.stringify(orders.value))
-      }
-    }
-
-    // 从 localStorage 恢复订单
-    const restoreFromStorage = () => {
-      try {
-        const storedOrders = localStorage.getItem('orders')
-        if (storedOrders) {
-          orders.value = JSON.parse(storedOrders)
-        }
-      } catch (error) {
-        console.error('恢复订单信息失败:', error)
-        orders.value = []
+        // Pinia persist 插件会自动保存到 localStorage
       }
     }
 
     // 清空所有订单
     const clearOrders = () => {
       orders.value = []
-      localStorage.removeItem('orders')
+      // Pinia persist 插件会自动清空 localStorage
     }
 
     // 获取订单统计（使用 computed 实现响应式）
@@ -89,7 +70,6 @@ export const useOrderStore = defineStore(
       updateOrderStatus,
       cancelOrder,
       deleteOrder,
-      restoreFromStorage,
       clearOrders,
       getOrderStats
     }

@@ -9,15 +9,14 @@ const router = useRouter()
 const userStore = useUserStore()
 const orderStore = useOrderStore()
 
-// 页面加载时恢复订单数据
+// 页面加载时检查登录状态
 onMounted(() => {
   if (!userStore.isLoggedIn) {
     ElMessage.warning('请先登录')
     router.push('/login')
     return
   }
-  
-  orderStore.restoreFromStorage()
+  // orderStore 数据会通过 Pinia persist 插件自动恢复
 })
 
 // 订单状态文字和颜色映射
@@ -106,7 +105,10 @@ const handleViewDetail = (order) => {
 const stats = computed(() => orderStore.getOrderStats)
 
 // 过滤后的订单列表
-const orderList = computed(() => orderStore.orders)
+// 添加防御性检查，确保 orders 是数组
+const orderList = computed(() => {
+  return Array.isArray(orderStore.orders) ? orderStore.orders : []
+})
 </script>
 
 <template>
